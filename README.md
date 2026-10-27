@@ -99,6 +99,13 @@ no passwords and no full solutions, only approach, commands and learnings.
 - commands: `man openssl-s_client` (searching with `/connect`), `openssl s_client -connect host:port`
 - what i learned: `s_client` is a subcommand of `openssl`, so its manual is `man openssl-s_client`, not `man s_client`. with `-connect` host and port are written together with a colon (`host:port`), unlike `nc` where they are two separate arguments. after connecting, openssl prints a lot of certificate info first, wait until it stops, then send the password. `nc` sends plain text, `s_client` encrypts it with tls (like https). the password for the current level is the one i logged in with, no file needed. files starting with a dot are hidden and the dot is part of the name. names like `name` or `dir` in my cheat sheet are placeholders, don't type them literally.
 
+## level 16 -> 17
+- goal: find the one port between 31000 and 32000 on localhost that speaks ssl and returns the next credentials, then log in as bandit17
+- commands: `nmap host -p range`, `nmap -sV -p port,port,...`, `openssl s_client -quiet -connect host:port`, `nano`, `chmod 600`, `ssh -i`
+- what i learned: a port scan shows which "doors" (services) are open, it's the first step of every attack and every pentest. `-p 31000-32000` scans a range, `-p a,b,c` only chosen ports (no spaces). `-sV` talks to each service to detect what runs there, so it's much slower. `-sV` (version) is not `-sO` (protocol scan), case matters. the right port was the one with `ssl` and not `echo`. in interactive `s_client`, letters at the start of a line are commands (`k` = keyupdate), so a password starting with `k` never reached the server. `-quiet` turns on `-nocommands` and `-ign_eof` and hides the session info. an option and its value belong together, nothing goes in between (`-connect host:port`). the answer was a private ssh key, not a password: save it on my own machine (outside the repo), `chmod 600`, then `ssh -i`. the password itself is readable afterwards in `/etc/bandit_pass/`.
+- mistakes i made: ran `man nmap` on my mac instead of the server (always check the prompt). typed placeholders like `<>` literally. wrote `ssh` twice, so ssh tried to resolve "ssh" as a hostname. pasted the nmap fingerprint on the website it suggested, never paste terminal data on a site without knowing what it's for.
+- man tips: `/word` searches forward from the current position, `g` jumps to the top, `n` / `N` next / previous hit.
+
 ## cheat sheet
 
 ### commands
@@ -129,6 +136,9 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `tar -xf file`                         | server | unpack a tar archive                                                       | (server only)                                                    |
 | `nc host port`                         | server | open a raw tcp connection and send text (unencrypted)                      | (server only)                                                    |
 | `openssl s_client -connect host:port`  | server | open an encrypted ssl/tls connection and send text                         | (server only)                                                    |
+| `nmap host -p 31000-32000`             | server | scan a port range for open ports                                           | (server only)                                                    |
+| `nmap -sV -p port1,port2 host`         | server | detect which service runs on each port (slower)                            | (server only)                                                    |
+| `openssl s_client -quiet -connect h:p` | server | tls connection without session info and without letter commands            | (server only)                                                    |
 | `nano file`                            | both   | simple text editor (ctrl+o save, ctrl+x exit), on mac and linux            | `notepad file`                                                   |
 | `chmod 600 file`                       | local  | set permissions (owner / group / others)                                   | no `chmod`, use `icacls` to remove access for other users        |
 | `man command`                          | server | manual, search with `/word`, quit with `q`                                 | locally: `Get-Help command`                                      |
