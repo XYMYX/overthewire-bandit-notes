@@ -103,8 +103,6 @@ no passwords and no full solutions, only approach, commands and learnings.
 - goal: find the one port between 31000 and 32000 on localhost that speaks ssl and returns the next credentials, then log in as bandit17
 - commands: `nmap host -p range`, `nmap -sV -p port,port,...`, `openssl s_client -quiet -connect host:port`, `nano`, `chmod 600`, `ssh -i`
 - what i learned: a port scan shows which "doors" (services) are open, it's the first step of every attack and every pentest. `-p 31000-32000` scans a range, `-p a,b,c` only chosen ports (no spaces). `-sV` talks to each service to detect what runs there, so it's much slower. `-sV` (version) is not `-sO` (protocol scan), case matters. the right port was the one with `ssl` and not `echo`. in interactive `s_client`, letters at the start of a line are commands (`k` = keyupdate), so a password starting with `k` never reached the server. `-quiet` turns on `-nocommands` and `-ign_eof` and hides the session info. an option and its value belong together, nothing goes in between (`-connect host:port`). the answer was a private ssh key, not a password: save it on my own machine (outside the repo), `chmod 600`, then `ssh -i`. the password itself is readable afterwards in `/etc/bandit_pass/`.
-- mistakes i made: ran `man nmap` on my mac instead of the server (always check the prompt). typed placeholders like `<>` literally. wrote `ssh` twice, so ssh tried to resolve "ssh" as a hostname. pasted the nmap fingerprint on the website it suggested, never paste terminal data on a site without knowing what it's for.
-- man tips: `/word` searches forward from the current position, `g` jumps to the top, `n` / `N` next / previous hit.
 
 ## cheat sheet
 
@@ -150,6 +148,14 @@ tip: with wsl ubuntu on windows, everything works like on linux and mac. keep yo
 - `tab`: autocomplete file and command names (also works in powershell)
 - `ctrl+c`: stop a running command or a waiting prompt (same on windows)
 - `|` (pipe): send the output of one command into the next
+
+### man page navigation
+- `/word`: search forward from the current position
+- `?word`: search backward
+- `n` / `N`: next / previous hit
+- `g` / `G`: jump to the top / bottom
+- `q`: quit
+- tip: if a search finds nothing, press `g` first and search again
 
 ### how i learn
 - try alone first, read the level page and the hint files.
