@@ -94,6 +94,11 @@ no passwords and no full solutions, only approach, commands and learnings.
 - commands: `nc host port`
 - what i learned: `localhost` / `127.0.0.1` always means the machine the command runs on. over ssh that is the bandit server, not my own computer, and localhost traffic never leaves the machine. `nc` (netcat) opens a raw tcp connection to a host and port and sends text, unencrypted. host and port are plain arguments, `-p` is the ssh option and doesn't belong here
 
+## level 15 -> 16
+- goal: submit the bandit15 password to port 30001 on localhost, but over an encrypted ssl/tls connection
+- commands: `man openssl-s_client` (searching with `/connect`), `openssl s_client -connect host:port`
+- what i learned: `s_client` is a subcommand of `openssl`, so its manual is `man openssl-s_client`, not `man s_client`. with `-connect` host and port are written together with a colon (`host:port`), unlike `nc` where they are two separate arguments. after connecting, openssl prints a lot of certificate info first, wait until it stops, then send the password. `nc` sends plain text, `s_client` encrypts it with tls (like https). the password for the current level is the one i logged in with, no file needed. files starting with a dot are hidden and the dot is part of the name. names like `name` or `dir` in my cheat sheet are placeholders, don't type them literally.
+
 ## cheat sheet
 
 ### commands
@@ -123,6 +128,7 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `gunzip file.gz` / `bunzip2 file.bz2`  | server | unpack gzip / bzip2                                                        | (server only)                                                    |
 | `tar -xf file`                         | server | unpack a tar archive                                                       | (server only)                                                    |
 | `nc host port`                         | server | open a raw tcp connection and send text (unencrypted)                      | (server only)                                                    |
+| `openssl s_client -connect host:port`  | server | open an encrypted ssl/tls connection and send text                         | (server only)                                                    |
 | `nano file`                            | both   | simple text editor (ctrl+o save, ctrl+x exit), on mac and linux            | `notepad file`                                                   |
 | `chmod 600 file`                       | local  | set permissions (owner / group / others)                                   | no `chmod`, use `icacls` to remove access for other users        |
 | `man command`                          | server | manual, search with `/word`, quit with `q`                                 | locally: `Get-Help command`                                      |
