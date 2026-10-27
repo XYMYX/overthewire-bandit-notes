@@ -89,6 +89,10 @@ no passwords and no full solutions, only approach, commands and learnings.
   - example `-rw-------`: `rw-` = 6, `---` = 0, `---` = 0, so 600 (only the owner can read and write, needed for private keys)
 - platform: done on macos (terminal, `nano`, `chmod 600`). on windows it works differently: `chmod` does not exist in powershell, file permissions are set with acls (e.g. `icacls`). in wsl ubuntu `chmod` works like on linux, but keep the key in the linux home (`~`), not under `/mnt/c`, because permissions there don't behave the same.
 
+## level 14 -> 15
+- goal: submit the bandit14 password to port 30000 on localhost to get the next password
+- commands: `nc host port`
+- what i learned: `localhost` / `127.0.0.1` always means the machine the command runs on. over ssh that is the bandit server, not my own computer, and localhost traffic never leaves the machine. `nc` (netcat) opens a raw tcp connection to a host and port and sends text, unencrypted. host and port are plain arguments, `-p` is the ssh option and doesn't belong here
 
 ## cheat sheet
 
@@ -118,6 +122,7 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `xxd file` / `xxd -r dump out`         | server | make a hexdump / turn a hexdump back into the file                         | (server only)                                                    |
 | `gunzip file.gz` / `bunzip2 file.bz2`  | server | unpack gzip / bzip2                                                        | (server only)                                                    |
 | `tar -xf file`                         | server | unpack a tar archive                                                       | (server only)                                                    |
+| `nc host port`                         | server | open a raw tcp connection and send text (unencrypted)                      | (server only)                                                    |
 | `nano file`                            | both   | simple text editor (ctrl+o save, ctrl+x exit), on mac and linux            | `notepad file`                                                   |
 | `chmod 600 file`                       | local  | set permissions (owner / group / others)                                   | no `chmod`, use `icacls` to remove access for other users        |
 | `man command`                          | server | manual, search with `/word`, quit with `q`                                 | locally: `Get-Help command`                                      |
