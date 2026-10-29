@@ -104,6 +104,50 @@ no passwords and no full solutions, only approach, commands and learnings.
 - commands: `nmap host -p range`, `nmap -sV -p port,port,...`, `openssl s_client -quiet -connect host:port`, `nano`, `chmod 600`, `ssh -i`
 - what i learned: a port scan shows which "doors" (services) are open, it's the first step of every attack and every pentest. `-p 31000-32000` scans a range, `-p a,b,c` only chosen ports (no spaces). `-sV` talks to each service to detect what runs there, so it's much slower. `-sV` (version) is not `-sO` (protocol scan), case matters. the right port was the one with `ssl` and not `echo`. in interactive `s_client`, letters at the start of a line are commands (`k` = keyupdate), so a password starting with `k` never reached the server. `-quiet` turns on `-nocommands` and `-ign_eof` and hides the session info. an option and its value belong together, nothing goes in between (`-connect host:port`). the answer was a private ssh key, not a password: save it on my own machine (outside the repo), `chmod 600`, then `ssh -i`. the password itself is readable afterwards in `/etc/bandit_pass/`.
 
+## level 17 -> 18
+- goal: find the only line that changed between passwords.old and passwords.new
+- commands:
+  - ssh -i ~/bandit17.key bandit17@bandit.labs.overthewire.org -p 2220 (from the mac, key has chmod 600)
+  - diff passwords.old passwords.new
+- what i learned:
+  - diff shows only the lines that differ
+  - < = line from the first file (old), > = line from the second file (new)
+  - no grep needed, diff already filters the changes
+  - here < and > are only diff output, not shell redirection
+- theory:
+  - hash = short fingerprint of a file, one changed character changes the whole hash
+  - a hash tells you if a file changed, diff tells you where (needs the old file)
+  - defenders keep a clean baseline and compare against it (file integrity monitoring)
+- platform: done on macos. diff works the same on mac, linux and in wsl. powershell: Compare-Object (Get-Content a) (Get-Content b)
+
+## level 18 -> 19
+- goal: read the password in readme, but .bashrc was changed to log you out right after login
+- commands:
+  - ssh bandit18@bandit.labs.overthewire.org -p 2220 ls
+  - ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme
+- what i learned:
+  - man ssh synopsis ends with [command [argument ...]]: ssh can run one command on the server instead of opening a login shell
+  - .bashrc is read by an interactive shell, a remote command skips the logout trap
+  - [ ] in man pages means optional, never type the brackets
+  - read error messages: "command not found: bandit18@..." means the command name (ssh) was missing
+- platform: done on macos, same in wsl. on a swiss mac keyboard: option+5 = [, option+6 = ]
+
+## level 19 -> 20
+- goal: use the setuid binary in the home directory to read the password of bandit20
+- commands:
+  - ls -la (shows -rwsr-x--- owned by bandit20)
+  - ./bandit20-do (without arguments it shows how to use it)
+  - ./bandit20-do whoami
+  - ./bandit20-do cat /etc/bandit_pass/<next level>
+- what i learned:
+  - binaries are not read with cat, they are run with ./name
+  - setuid (s instead of x): the program runs with the rights of its owner, not of the user who starts it
+  - only that one program gets the rights, my own shell stays bandit19
+  - passwords are stored in /etc/bandit_pass/, one file per level
+- security:
+  - setuid programs that allow too much can be used for privilege escalation
+- platform: done on the bandit server via ssh from macos. windows has no setuid (closest: "run as" another user)
+
 ## cheat sheet
 
 ### commands
@@ -141,7 +185,11 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `chmod 600 file`                       | local  | set permissions (owner / group / others)                                   | no `chmod`, use `icacls` to remove access for other users        |
 | `man command`                          | server | manual, search with `/word`, quit with `q`                                 | locally: `Get-Help command`                                      |
 | `reset`                                | both   | fix a broken terminal                                                      | `cls` clears the screen                                          |
-
+| diff a b                      | server | shows lines that differ between two files              | Compare-Object (Get-Content a) (Get-Content b) |
+| sha256sum file                | server | prints the sha-256 hash of a file                      | Get-FileHash file (mac: shasum -a 256 file)    |
+| ssh user@host -p port command | local  | runs one command on the server without a login shell   | same in powershell (openssh is built in)       |
+| ./program                     | server | runs a program in the current folder                   | .\program.exe                                  |
+| whoami                        | server | shows which user you are right now                     | whoami                                         |
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
 ### shortcuts
@@ -166,3 +214,8 @@ tip: with wsl ubuntu on windows, everything works like on linux and mac. keep yo
 - on mac, watch out for smart quotes and long dashes when copying commands. on windows, copy and paste in the terminal can be right click or ctrl+shift+v.
 - write the note right after solving a level.
 - never publish passwords, keys or full solutions.
+- placeholders like <keyfile> are not typed literally, replace them with the real value
+- check the prompt before every command: local or bandit server?
+- read the command once before pressing enter
+- before pasting output anywhere (chat, repo), check it for passwords or keys and replace them with [redacted]
+- always run file before cat, programs are run, not read
