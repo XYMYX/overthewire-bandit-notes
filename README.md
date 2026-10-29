@@ -105,10 +105,9 @@ no passwords and no full solutions, only approach, commands and learnings.
 - what i learned: a port scan shows which "doors" (services) are open, it's the first step of every attack and every pentest. `-p 31000-32000` scans a range, `-p a,b,c` only chosen ports (no spaces). `-sV` talks to each service to detect what runs there, so it's much slower. `-sV` (version) is not `-sO` (protocol scan), case matters. the right port was the one with `ssl` and not `echo`. in interactive `s_client`, letters at the start of a line are commands (`k` = keyupdate), so a password starting with `k` never reached the server. `-quiet` turns on `-nocommands` and `-ign_eof` and hides the session info. an option and its value belong together, nothing goes in between (`-connect host:port`). the answer was a private ssh key, not a password: save it on my own machine (outside the repo), `chmod 600`, then `ssh -i`. the password itself is readable afterwards in `/etc/bandit_pass/`.
 
 ## level 17 -> 18
-- goal: find the only line that changed between passwords.old and passwords.new
 - commands:
-  - ssh -i ~/bandit17.key bandit17@bandit.labs.overthewire.org -p 2220 (from the mac, key has chmod 600)
-  - diff passwords.old passwords.new
+  - ssh -i with the key from the last level (from the local pc, key has chmod 600)
+  - diff on the two password files, think about which side is the new one
 - what i learned:
   - diff shows only the lines that differ
   - < = line from the first file (old), > = line from the second file (new)
@@ -121,10 +120,9 @@ no passwords and no full solutions, only approach, commands and learnings.
 - platform: done on macos. diff works the same on mac, linux and in wsl. powershell: Compare-Object (Get-Content a) (Get-Content b)
 
 ## level 18 -> 19
-- goal: read the password in readme, but .bashrc was changed to log you out right after login
 - commands:
-  - ssh bandit18@bandit.labs.overthewire.org -p 2220 ls
-  - ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme
+  - ssh user@host -p port followed by a command (check man ssh synopsis)
+  - first a command to list files, then one to read the file
 - what i learned:
   - man ssh synopsis ends with [command [argument ...]]: ssh can run one command on the server instead of opening a login shell
   - .bashrc is read by an interactive shell, a remote command skips the logout trap
@@ -133,12 +131,10 @@ no passwords and no full solutions, only approach, commands and learnings.
 - platform: done on macos, same in wsl. on a swiss mac keyboard: option+5 = [, option+6 = ]
 
 ## level 19 -> 20
-- goal: use the setuid binary in the home directory to read the password of bandit20
 - commands:
-  - ls -la (shows -rwsr-x--- owned by bandit20)
-  - ./bandit20-do (without arguments it shows how to use it)
-  - ./bandit20-do whoami
-  - ./bandit20-do cat /etc/bandit_pass/<next level>
+  - ls -la to find the setuid binary and its owner
+  - run the binary without arguments to see how it works
+  - test it with whoami, then use it to read the next password from /etc/bandit_pass/
 - what i learned:
   - binaries are not read with cat, they are run with ./name
   - setuid (s instead of x): the program runs with the rights of its owner, not of the user who starts it
