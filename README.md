@@ -176,6 +176,21 @@ no passwords and no full solutions, only approach, commands and learnings.
   - a job running as another user that writes secrets to a world-readable file leaks them
   - /tmp is readable by everyone, never put secrets there
 
+## level 22 -> 23
+- goal: understand a cron script that builds a file name from a hash and use it to find the next password
+- commands:
+  - read the cron file for bandit23 and the script it runs (file first, then cat)
+  - figure out what each variable becomes when the script runs as bandit23
+  - rebuild the file name yourself with the same pipe, using the right user name
+  - read that file in /tmp
+- what i learned:
+  - $(...) runs a command and puts its output into a variable
+  - md5sum turns any input into a hash, same input gives the same hash
+  - cut -d ' ' -f 1 takes the first field, split by spaces
+  - a hash is case sensitive: "i" and "I" give completely different hashes
+  - variables like $myname are empty in my own shell if i never set them
+- security:
+  - a "random-looking" name made from a hash is not secret if the formula is readable
 
 ## cheat sheet
 
@@ -222,6 +237,9 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `nc -l port` | server | listens on a port and waits for a connection | no built-in equivalent (ncat from nmap) |
 | `cd /path` | server | change to an absolute path starting at the root | `cd C:\path` |
 | `/etc/cron.d/` | server | folder with system cron job definitions | task scheduler (`Get-ScheduledTask`) |
+| `md5sum` | server | prints the md5 hash of its input | `Get-FileHash -Algorithm MD5` |
+| `cut -d ' ' -f 1` | server | cuts out one field, split by a delimiter | `.Split(' ')[0]` |
+| `$(command)` | server | puts the output of a command into a variable | `$(command)` |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
@@ -252,3 +270,4 @@ tip: with wsl ubuntu on windows, everything works like on linux and mac. keep yo
 - read the command once before pressing enter
 - before pasting output anywhere (chat, repo), check it for passwords or keys and replace them with [redacted]
 - always run file before cat, programs are run, not read
+- compare letter by letter when a hash or a path doesn't work
