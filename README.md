@@ -192,6 +192,23 @@ no passwords and no full solutions, only approach, commands and learnings.
 - security:
   - a "random-looking" name made from a hash is not secret if the formula is readable
 
+## level 23 -> 24
+- goal: a cron job runs every script placed in a spool folder as bandit24, then deletes it; use it to get the next password
+- commands:
+  - read the cron file for bandit24 and the script it runs (file, then cat)
+  - understand which folder the script runs and which user it runs as
+  - write a small bash script that copies bandit24's password file to a world-readable file somewhere you can read
+  - write it in your own folder (the spool folder gets emptied), make it executable, then copy it into the spool folder
+  - wait about a minute, then read your output file
+- what i learned:
+  - a cron job that runs your file as another user can be abused to act as that user
+  - chmod +x makes a file executable (x = execute), separate from its contents
+  - the real passwords live in /etc/bandit_pass/<user>, readable only by that user
+  - write output to a file you are allowed to read, and chmod 644 so you can read it
+  - the spool folder is cleaned regularly, so edit the script elsewhere first
+- security:
+  - never run files from a writable folder as a privileged user; that is a classic privilege escalation
+
 ## cheat sheet
 
 ### commands
@@ -240,6 +257,9 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `md5sum` | server | prints the md5 hash of its input | `Get-FileHash -Algorithm MD5` |
 | `cut -d ' ' -f 1` | server | cuts out one field, split by a delimiter | `.Split(' ')[0]` |
 | `$(command)` | server | puts the output of a command into a variable | `$(command)` |
+| `chmod +x file` | server | makes a file executable | `icacls` / not needed the same way |
+| `cp a b` | server | copies file a to b | `Copy-Item a b` |
+| `mkdir name` | server | creates a folder | `New-Item -ItemType Directory` |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
