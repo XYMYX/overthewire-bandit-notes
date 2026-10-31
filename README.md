@@ -144,6 +144,21 @@ no passwords and no full solutions, only approach, commands and learnings.
   - setuid programs that allow too much can be used for privilege escalation
 - platform: done on the bandit server via ssh from macos. windows has no setuid (closest: "run as" another user)
 
+## level 20 -> 21
+- goal: a setuid binary connects to a port on localhost, reads the old password and sends back the new one if it matches
+- commands:
+  - two terminals, both logged in as bandit20
+  - terminal 1: nc in listen mode on a free port above 1024 (check man nc for the listen option)
+  - terminal 2: run the setuid binary with that port as argument
+  - send the current password through the nc side
+- what i learned:
+  - nc can be a client (connect) or a server (listen)
+  - the listener has to run first, otherwise the connection is refused
+  - client and server can be on the same machine (localhost)
+  - ports below 1024 need root, so pick a higher one
+  - in man pages, l (small L) and 1 look almost the same
+- platform: macos (ssh to bandit server)
+
 ## cheat sheet
 
 ### commands
@@ -186,6 +201,7 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | ssh user@host -p port command | local  | runs one command on the server without a login shell   | same in powershell (openssh is built in)       |
 | ./program                     | server | runs a program in the current folder                   | .\program.exe                                  |
 | whoami                        | server | shows which user you are right now                     | whoami                                         |
+| `nc -l port` | server | listens on a port and waits for a connection | no built-in equivalent (ncat from nmap) |
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
 ### shortcuts
