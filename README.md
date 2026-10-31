@@ -157,7 +157,25 @@ no passwords and no full solutions, only approach, commands and learnings.
   - client and server can be on the same machine (localhost)
   - ports below 1024 need root, so pick a higher one
   - in man pages, l (small L) and 1 look almost the same
-- platform: macos (ssh to bandit server)
+
+## level 21 -> 22
+- goal: find out what a cron job runs and use it to get the next password
+- commands:
+  - look in the cron folder under /etc mentioned on the level page
+  - read the cron file for bandit22 to find which script it runs
+  - check the script with file, then read it
+  - follow what the script does and look where it writes its output
+- what i learned:
+  - cron runs commands automatically on a schedule
+  - cron line: 5 time fields (minute hour day month weekday), user, command
+  - * * * * * means every minute, @reboot means at every system start
+  - &> /dev/null throws away all output
+  - paths starting with / start at the root, ~ starts at my home folder
+  - the number after the permissions in ls -la is the link count, not important here
+- security:
+  - a job running as another user that writes secrets to a world-readable file leaks them
+  - /tmp is readable by everyone, never put secrets there
+
 
 ## cheat sheet
 
@@ -202,6 +220,9 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | ./program                     | server | runs a program in the current folder                   | .\program.exe                                  |
 | whoami                        | server | shows which user you are right now                     | whoami                                         |
 | `nc -l port` | server | listens on a port and waits for a connection | no built-in equivalent (ncat from nmap) |
+| `cd /path` | server | change to an absolute path starting at the root | `cd C:\path` |
+| `/etc/cron.d/` | server | folder with system cron job definitions | task scheduler (`Get-ScheduledTask`) |
+
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
 ### shortcuts
