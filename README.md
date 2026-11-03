@@ -209,6 +209,25 @@ no passwords and no full solutions, only approach, commands and learnings.
 - security:
   - never run files from a writable folder as a privileged user; that is a classic privilege escalation
 
+## level 24 -> 25
+- goal: a daemon wants the level 24 password plus an unknown 4-digit pin on one line; brute force all pins
+- commands:
+  - read the level page for the port and the exact input format
+  - write a bash loop that builds one line per pin: the password followed by the 4-digit pin
+  - use seq for the number range and printf with zero-padding for the pin
+  - pipe the whole loop's output into nc connecting to the port on localhost
+  - filter out the rejection lines to find the one with the next password
+- what i learned:
+  - for i in $(seq 0 9999) loops over a number range
+  - printf "%04d" pads a number to 4 digits with leading zeros
+  - \n in printf starts a new line
+  - { ...; } groups commands so their combined output goes through one pipe
+  - a pipe | sends one command's output into another command
+  - this is bash scripting, the same language the shell uses
+- security:
+  - a 4-digit pin with no rate limit, delay or lockout is trivial to brute force
+  - defenses: longer secrets, delays, lockout after a few failed tries
+
 ## cheat sheet
 
 ### commands
@@ -260,6 +279,10 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `chmod +x file` | server | makes a file executable | `icacls` / not needed the same way |
 | `cp a b` | server | copies file a to b | `Copy-Item a b` |
 | `mkdir name` | server | creates a folder | `New-Item -ItemType Directory` |
+| `seq 0 9999` | server | prints numbers from 0 to 9999, one per line | `0..9999` |
+| `printf "%04d\n" n` | server | prints n padded to 4 digits plus a newline | `"{0:D4}" -f n` |
+| `for x in ...; do ...; done` | server | loops over a list | `foreach ($x in ...) { }` |
+| `{ cmds; } \| nc host port` | server | pipes grouped output into a connection | `... \| ncat` |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
