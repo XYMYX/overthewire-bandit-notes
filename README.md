@@ -228,6 +228,24 @@ no passwords and no full solutions, only approach, commands and learnings.
   - a 4-digit pin with no rate limit, delay or lockout is trivial to brute force
   - defenses: longer secrets, delays, lockout after a few failed tries
 
+## level 25 -> 26
+- goal: bandit26's login shell is not bash; escape from more into a real shell and read the password
+- commands:
+  - find bandit26's login shell in /etc/passwd
+  - inspect that shell script with file then cat
+  - copy the ssh key to the local machine, set key permissions, ssh with -i from the client (not from localhost)
+  - shrink the terminal so more pauses, open the editor from more, then start a shell from the editor
+  - read the password file for the current user under /etc/bandit_pass/
+- what i learned:
+  - /etc/passwd last field is the login shell (no passwords there)
+  - showtext runs more on a file then exits
+  - more stays open when the text does not fit the screen
+  - from more, a key opens vi; from vi, an ex command can start a shell
+  - ssh from localhost can be blocked; connect from the client
+  - private keys need tight permissions and a correct file format (begin/end lines, no extra blank line after end)
+- security:
+  - a restricted login shell that still allows an interactive pager/editor can be escaped to a full shell
+
 ## cheat sheet
 
 ### commands
@@ -283,6 +301,10 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `printf "%04d\n" n` | server | prints n padded to 4 digits plus a newline | `"{0:D4}" -f n` |
 | `for x in ...; do ...; done` | server | loops over a list | `foreach ($x in ...) { }` |
 | `{ cmds; } \| nc host port` | server | pipes grouped output into a connection | `... \| ncat` |
+| `/etc/passwd` | server | user accounts; last field = login shell | local users / Get-LocalUser |
+| `more` | server | pager; pauses when text is longer than the screen | `more` / `Out-Host -Paging` |
+| `v` in more | server | opens the current file in vi | (n/a) |
+| `:shell` in vi | server | starts a shell from the editor | (n/a) |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
