@@ -272,6 +272,27 @@ no passwords and no full solutions, only approach, commands and learnings.
   - a setuid program that runs any command as another user gives away all of that user's rights
   - setuid programs should do one fixed job, never run commands from the user
 
+## level 27 -> 28
+- goal: a git repository holds the next password; clone it and read it
+- commands:
+  - make a writable working dir with mktemp -d (the home folder is read-only), then cd into it
+  - read the level page for the clone url: ssh://bandit27-git@HOST:2220/home/bandit27-git/repo
+  - the git user bandit27-git uses the same password as bandit27
+  - run git clone with that url, confirm the host fingerprint with yes, enter the password
+  - cd into the cloned repo, ls -la, cat the README
+- what i learned:
+  - a url is not a command: it needs git clone in front, or the shell treats it as a filename
+  - ssh needs a port with :2220, without it ssh uses the default port 22
+  - cloning from inside the bandit server fails: the server blocks localhost connections
+  - even the full hostname resolves to 127.0.0.1 when you run it on the server itself
+  - so clone from your own client machine (mac), not from the bandit session
+  - git clone only copies files, it does not keep a live connection open after
+  - the clone saves the repo url in .git/config, but nothing is connected until git pull/fetch
+- security:
+  - the cloned repo contains a plaintext password in the README on your own machine
+  - delete the clone after use (rm -rf) so the password does not leak into a screenshot or stream
+  - git pack files are read-only, so rm asks before deleting them unless you use -f
+
 ## cheat sheet
 
 ### commands
@@ -334,6 +355,8 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `which program` | both | shows where a program lives (full path) | `Get-Command program` |
 | `id` | server | shows uid, euid and groups of the current user | `whoami /groups` |
 | `:set shell=/path` in vi | server | sets which shell `:shell` starts | (n/a) |
+| `git clone ssh://user@host:port/path` | local | copies a remote git repository to the current folder | same (git is cross-platform) |
+| `rm -r dir` / `rm -rf dir` | both | deletes a folder; `-f` forces and skips prompts for read-only files | `Remove-Item -Recurse dir` / add `-Force` |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
