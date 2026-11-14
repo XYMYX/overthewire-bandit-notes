@@ -293,6 +293,26 @@ no passwords and no full solutions, only approach, commands and learnings.
   - delete the clone after use (rm -rf) so the password does not leak into a screenshot or stream
   - git pack files are read-only, so rm asks before deleting them unless you use -f
 
+## level 28 -> 29
+- goal: clone a git repo, but the password in the README is censored; find it in the git history
+- commands:
+  - clone the repo like in 27 -> 28 (from your own machine, full hostname, port :2220)
+  - cd into repo, cat the README: the password shows as xxxxx (redacted)
+  - git log: list the commits, each with a hash and a message; quit the pager with q
+  - look for a commit whose message hints at censoring (here: "fix info leak")
+  - git show <hash>: show what that commit changed; the removed line holds the old password
+- what i learned:
+  - git keeps every past version of a file, not just the current one
+  - a password removed in a later commit is still readable in the history
+  - git log = the logbook of all commits (hash + message)
+  - git show <hash> = the diff of one commit: - lines removed, + lines added
+  - the real password was the removed (-) line, replaced by the xxxx (+) line
+  - a redacted current file does not mean the secret is gone
+- security:
+  - never commit a secret and "remove" it in a later commit; it stays in the history forever
+  - to really remove it you must rewrite history (and rotate the secret anyway)
+  - this is a common real-world leak: api keys and passwords found in old commits
+
 ## cheat sheet
 
 ### commands
@@ -357,6 +377,8 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `:set shell=/path` in vi | server | sets which shell `:shell` starts | (n/a) |
 | `git clone ssh://user@host:port/path` | local | copies a remote git repository to the current folder | same (git is cross-platform) |
 | `rm -r dir` / `rm -rf dir` | both | deletes a folder; `-f` forces and skips prompts for read-only files | `Remove-Item -Recurse dir` / add `-Force` |
+| `git log` | local | lists the commit history (hash + message), quit with `q` | same |
+| `git show <hash>` | local | shows what one commit changed (- removed, + added lines) | same |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
