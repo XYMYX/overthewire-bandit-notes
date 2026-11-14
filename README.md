@@ -246,6 +246,32 @@ no passwords and no full solutions, only approach, commands and learnings.
 - security:
   - a restricted login shell that still allows an interactive pager/editor can be escaped to a full shell
 
+## level 26 -> 27
+- goal: log in as bandit26 again (same restricted shell as 25 -> 26), then use a setuid program in the home folder to read bandit27's password
+- commands:
+  - log in to bandit26 the same way as before: terminal very low in height, so more pauses
+  - open vi from more, set vi's shell option to the path of bash, then start a shell from vi
+  - find the path of bash with which on your own computer
+  - list the home folder with details and read the permissions of the program
+  - check the program with file and your own groups with id
+  - run the program without arguments, it prints its own usage
+  - put the command that reads bandit27's password file behind the program
+  - log in as bandit27 with the password (normal login, no -i)
+- what i learned:
+  - :shell in vi uses vi's shell option; if the login shell is not bash, set it first
+  - permissions -rwsr-x--- owner bandit27, group bandit26: s in block 1 = runs as the owner
+  - i am in the group, so block 2 (r-x) counts for me: read and execute, no write
+  - ls -la only shows the file's group, id shows if i am really in that group
+  - uid = who i really am, euid = effective user id, the euid decides what i may read
+  - the setuid program already switches the user, i don't have to set anything
+  - /etc/bandit_pass/ is a folder, the password is in the file named after the user, no file ending
+  - don't guess file endings like .txt, look with ls
+  - -i in ssh is only for key files, a password means a normal login
+  - when building a command from parts, compare it with the parts again (i lost the file name once)
+- security:
+  - a setuid program that runs any command as another user gives away all of that user's rights
+  - setuid programs should do one fixed job, never run commands from the user
+
 ## cheat sheet
 
 ### commands
@@ -305,6 +331,9 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `more` | server | pager; pauses when text is longer than the screen | `more` / `Out-Host -Paging` |
 | `v` in more | server | opens the current file in vi | (n/a) |
 | `:shell` in vi | server | starts a shell from the editor | (n/a) |
+| `which program` | both | shows where a program lives (full path) | `Get-Command program` |
+| `id` | server | shows uid, euid and groups of the current user | `whoami /groups` |
+| `:set shell=/path` in vi | server | sets which shell `:shell` starts | (n/a) |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
