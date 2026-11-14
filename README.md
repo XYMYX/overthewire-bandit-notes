@@ -313,6 +313,26 @@ no passwords and no full solutions, only approach, commands and learnings.
   - to really remove it you must rewrite history (and rotate the secret anyway)
   - this is a common real-world leak: api keys and passwords found in old commits
 
+## level 29 -> 30
+- goal: clone a git repo; the password is not on the main branch but on another branch
+- commands:
+  - clone the repo like before (from your own machine, full hostname, port :2220), cd in
+  - cat README: the password field says "<no passwords in production!>"
+  - git branch -a: list all branches including the ones on the server (under remotes/)
+  - git checkout <branch> then cat README.md to read that branch's version
+  - check the branches one by one until one holds the real password
+- what i learned:
+  - a git repo can have several branches, each with its own version of the files
+  - "production" usually means the master/main branch; other work lives on dev branches
+  - git branch -a shows local and remote branches (-a = all, like ls -a)
+  - git checkout <branch> switches your working files to that branch
+  - the password was on the dev branch, not on master or sploits-dev
+  - a tempting name (sploits-dev) is not automatically the right one: check, don't guess
+- security:
+  - secrets often sit in side branches that look "unfinished" or internal
+  - never assume the main branch is the only place a secret can live
+  - when auditing a repo, look at every branch, not just the default one
+
 ## cheat sheet
 
 ### commands
@@ -379,6 +399,8 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `rm -r dir` / `rm -rf dir` | both | deletes a folder; `-f` forces and skips prompts for read-only files | `Remove-Item -Recurse dir` / add `-Force` |
 | `git log` | local | lists the commit history (hash + message), quit with `q` | same |
 | `git show <hash>` | local | shows what one commit changed (- removed, + added lines) | same |
+| `git branch -a` | local | lists all branches, local and remote (`-a` = all) | same |
+| `git checkout <branch>` | local | switches the working files to another branch | same |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
