@@ -333,6 +333,24 @@ no passwords and no full solutions, only approach, commands and learnings.
   - never assume the main branch is the only place a secret can live
   - when auditing a repo, look at every branch, not just the default one
 
+## level 30 -> 31
+- goal: clone a git repo; the README is empty, the password is hidden in a git tag
+- commands:
+  - clone the repo like before (from your own machine, full hostname, port :2220), cd in
+  - cat README: empty, and a mocking comment, a dead end on purpose
+  - git branch -a: nothing useful here either
+  - git tag: list the tags; here one tag is called secret
+  - git show secret: show what the tag points to; the password sits there
+- what i learned:
+  - a git tag is a named pointer to a specific commit, often used for versions like v1.0
+  - git tag lists all tags in the repo
+  - git show <tagname> shows the object the tag points to (same command as for a commit hash)
+  - data can hide in branches, in history, and in tags: check all three
+  - an empty or mocking README does not mean the repo is empty
+- security:
+  - when auditing a repo, don't stop at files and branches, also list tags
+  - tags are an easy spot to overlook, so secrets left there often survive cleanups
+
 ## cheat sheet
 
 ### commands
@@ -401,6 +419,8 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `git show <hash>` | local | shows what one commit changed (- removed, + added lines) | same |
 | `git branch -a` | local | lists all branches, local and remote (`-a` = all) | same |
 | `git checkout <branch>` | local | switches the working files to another branch | same |
+| `git tag` | local | lists all tags (named pointers to commits) | same |
+| `git show <tag>` | local | shows the commit/object a tag points to | same |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
