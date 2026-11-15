@@ -391,6 +391,8 @@ no passwords and no full solutions, only approach, commands and learnings.
   - input filtering that only catches letters is incomplete: symbols slip through
   - setuid again: the escaped shell inherits the owner's rights
 
+### bandit complete 0→33
+
 ## cheat sheet
 
 ### commands
