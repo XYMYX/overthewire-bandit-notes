@@ -372,6 +372,25 @@ no passwords and no full solutions, only approach, commands and learnings.
   - .gitignore only hints, it does not protect: -f pushes the file anyway
   - a server that runs a hook on push is executing code triggered by an outside user, a spot to secure carefully
 
+## level 32 -> 33
+- goal: escape a shell that turns every command into uppercase, then read the password
+- commands:
+  - log in: you land in the "UPPERCASE shell"; every letter you type becomes a capital
+  - any normal command fails: ls becomes LS, which does not exist
+  - type $0 to start a new shell; $ and 0 have no lowercase letters, so they survive the conversion
+  - the new shell runs as bandit33 (the uppershell binary is setuid, like in 26 -> 27)
+  - check with whoami, then cat /etc/bandit_pass/bandit33
+- what i learned:
+  - $0 holds the name of the running program (the shell itself); running it starts a fresh shell
+  - the uppercase filter only changes letters, not symbols or digits like $ 0 /
+  - uppercase linux commands do not exist, so the trick is input made of non-letters
+  - file uppershell showed it is a setuid ELF, so the spawned shell has bandit33's rights
+  - stay on task: i wandered into the home folder (file, .profile) before reading the password
+- security:
+  - a restricted or filtered shell can often be escaped through shell features it did not block
+  - input filtering that only catches letters is incomplete: symbols slip through
+  - setuid again: the escaped shell inherits the owner's rights
+
 ## cheat sheet
 
 ### commands
@@ -447,6 +466,8 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `git commit -m "msg"` | local | records the staged changes with a message | same |
 | `git push origin master` | local | uploads commits to the remote branch | same |
 | `.gitignore` | local | lists file patterns git should skip | same |
+| `$0` | server | runs the current shell's own program (name stored in $0); escapes a restricted shell | (n/a) |
+| `whoami` | server | shows which user you are right now | `whoami` |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
