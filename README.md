@@ -351,6 +351,27 @@ no passwords and no full solutions, only approach, commands and learnings.
   - when auditing a repo, don't stop at files and branches, also list tags
   - tags are an easy spot to overlook, so secrets left there often survive cleanups
 
+## level 31 -> 32
+- goal: this time you don't read a secret, you push a file to the repo; the server hook gives back the password
+- commands:
+  - clone the repo like before, cd in, read the README: it asks for a file key.txt with content 'May I come in?' on branch master
+  - create the file: echo 'May I come in?' > key.txt, then cat it to check the exact content
+  - git add key.txt fails: a .gitignore ignores *.txt
+  - git add -f key.txt forces it in despite the ignore rule
+  - git commit -m "..." records the change
+  - git push origin master uploads it; the server-side hook prints the next password
+- what i learned:
+  - the git flow for a change: add (stage) -> commit (record) -> push (upload)
+  - a .gitignore file makes git skip matching files (here *.txt)
+  - git add -f forces an ignored file into the commit
+  - -f means different things per command: rm -f = force delete, git add -f = force add, nothing is deleted
+  - content must match exactly: capital M in "May", the space and the ? all count
+  - single quotes '...' stop the shell from interpreting ?, $ or !
+  - a git push can trigger a server hook that runs code and answers back
+- security:
+  - .gitignore only hints, it does not protect: -f pushes the file anyway
+  - a server that runs a hook on push is executing code triggered by an outside user, a spot to secure carefully
+
 ## cheat sheet
 
 ### commands
@@ -421,6 +442,11 @@ most commands run on the bandit server (linux), so they are the same no matter i
 | `git checkout <branch>` | local | switches the working files to another branch | same |
 | `git tag` | local | lists all tags (named pointers to commits) | same |
 | `git show <tag>` | local | shows the commit/object a tag points to | same |
+| `echo 'text' > file` | both | writes text into a file (`>` overwrites, `>>` appends) | `'text' | Set-Content file` |
+| `git add -f file` | local | stages a file, `-f` forces one blocked by .gitignore | same |
+| `git commit -m "msg"` | local | records the staged changes with a message | same |
+| `git push origin master` | local | uploads commits to the remote branch | same |
+| `.gitignore` | local | lists file patterns git should skip | same |
 
 tip: with wsl ubuntu on windows, everything works like on linux and mac. keep your files in the linux home (`~`), not under `/mnt/c`.
 
